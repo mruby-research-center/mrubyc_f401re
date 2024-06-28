@@ -1,0 +1,17 @@
+16:47:56 **** Incremental Build of configuration Debug for project tuto01 ****
+make -j4 all
+cd ..\\Core\\mrubyc; make
+cmd /C mrbc.exe -Bsample1 sample1.rb
+cmd /C mrbc.exe -Bsample2 sample2.rb
+
+arm-none-eabi-gcc "../Core/mrubyc/sample1.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/mrubyc/sample1.d" -MT"Core/mrubyc/sample1.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/mrubyc/sample1.o"
+arm-none-eabi-gcc "../Core/mrubyc/start_mrubyc.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/mrubyc/start_mrubyc.d" -MT"Core/mrubyc/start_mrubyc.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/mrubyc/start_mrubyc.o"
+arm-none-eabi-gcc -o "tuto01.elf" @"objects.list"   -mcpu=cortex-m4 -T"Z:\STM32\tuto01\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="tuto01.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+C:/ST/STM32CubeIDE_1.15.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.100.202403111256/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/bin/ld.exe: ./Core/mrubyc/start_mrubyc.o: in function `start_mrubyc':
+Z:/STM32/tuto01/Debug/../Core/mrubyc/start_mrubyc.c:31: undefined reference to `sample2'
+collect2.exe: error: ld returned 1 exit status
+make[1]: *** [makefile:67: tuto01.elf] Error 1
+make: *** [makefile:60: all] Error 2
+"make -j4 all" terminated with exit code 2. Build might be incomplete.
+
+16:48:11 Build Failed. 3 errors, 0 warnings. (took 14s.288ms)
