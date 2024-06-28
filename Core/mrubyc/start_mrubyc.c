@@ -14,6 +14,10 @@ void start_mrubyc( void )
 {
   mrbc_init(memory_pool, MRBC_MEMORY_SIZE);
 
+  // 各クラスの初期化
+  void mrbc_init_class_gpio(void);
+  mrbc_init_class_gpio();
+
   // ユーザ定義メソッドの登録
   mrbc_define_method(0, 0, "led_write", c_led_write);
   mrbc_define_method(0, 0, "sw_read", c_sw_read);
