@@ -19,14 +19,16 @@ void start_mrubyc( void )
   mrbc_init_class_gpio();
   void mrbc_init_class_adc(void);
   mrbc_init_class_adc();
+  void mrbc_init_class_pwm(void);
+  mrbc_init_class_pwm();
 
   // ユーザ定義メソッドの登録
   mrbc_define_method(0, 0, "led_write", c_led_write);
   mrbc_define_method(0, 0, "sw_read", c_sw_read);
 
   // タスクの登録
-  extern const uint8_t sample1[];
-  mrbc_create_task( sample1, 0 );
+  extern const uint8_t task1[];
+  mrbc_create_task( task1, 0 );
 
   // 実行開始
   mrbc_run();
