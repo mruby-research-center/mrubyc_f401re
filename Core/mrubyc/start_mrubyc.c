@@ -1,5 +1,6 @@
 #include "main.h"
 #include "../mrubyc_src/mrubyc.h"
+#include "stm32f4_uart.h"
 
 static void c_led_write(mrbc_vm *vm, mrbc_value v[], int argc);
 static void c_sw_read(mrbc_vm *vm, mrbc_value v[], int argc);
@@ -12,6 +13,7 @@ static uint8_t memory_pool[MRBC_MEMORY_SIZE];
 */
 void start_mrubyc( void )
 {
+  uart_init();
   mrbc_init(memory_pool, MRBC_MEMORY_SIZE);
 
   // 各クラスの初期化
@@ -25,6 +27,8 @@ void start_mrubyc( void )
   mrbc_init_class_i2c();
   void mrbc_init_class_spi(void);
   mrbc_init_class_spi();
+  void mrbc_init_class_uart(void);
+  mrbc_init_class_uart();
 
   // ユーザ定義メソッドの登録
   mrbc_define_method(0, 0, "led_write", c_led_write);

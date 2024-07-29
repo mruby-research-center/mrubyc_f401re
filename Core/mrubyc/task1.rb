@@ -1,41 +1,31 @@
-#
-# MAX31855
-#  Cold-Junction Compensated Thermocouple-to-Digital Converter
-#
-#  https://www.maximintegrated.com/en/products/interface/sensor-interface/MAX31855.html
-#
-# Breakout board.
-#  https://www.switch-science.com/catalog/864/
-#
-# Pin assign.
-#  CN   pin     GPIO    Usage
-#  CN7  1       PC10    SCK
-#  CN7  2       PC11    MISO
-#  CN7  3       PC12    MOSI
-#  CN5  3       PB6     CS (SS)
-#
-
-puts "MAX31855 Thermo meter."
-
-spi = SPI.new()
-cs = GPIO.new("PB6", GPIO::OUT)
-cs.write( 1 )
-sleep_ms 100
-
+uart6 = UART.new(6)
 
 while true
-  cs.write( 0 )
-  s = spi.read(4)
-  cs.write( 1 )
+  s = uart6.gets
+  next if !s.start_with?("$GNRMC")
 
-  # DATA[31:18] * 0.25
-  temp_tc =  (((s.getbyte(0) << 6) | (s.getbyte(1) >> 2)) -
-              ((s.getbyte(0) & 0x80) << 7)) * 0.25
+  rmc = s.split(",")
+  next if rmc[2] != "A"
 
-  # DATA[15:4] * 0.0625
-  temp_std = (((s.getbyte(2) << 4) | (s.getbyte(3) >> 4)) -
-              ((s.getbyte(2) & 0x80) << 5)) * 0.0625
+  # 日付(UTC)
+  day = rmc[9][0,2].to_i
+  mon = rmc[9][2,2].to_i
+  year = rmc[9][4,2].to_i + 2000
 
-  printf "TC=%.1f ℃  std=%.1f ℃\n", temp_tc, temp_std
-  sleep 1
+  # 時刻(UTC)
+  hour = rmc[1][0,2].to_i
+  min = rmc[1][2,2].to_i
+  sec = rmc[1][4,2].to_i
+
+  # 緯度
+  south_north = rmc[4]
+  latitude = rmc[3]
+
+  # 経度
+  east_west = rmc[6]
+  longitude = rmc[5]
+
+  printf( "%d/%2d/%2d %2d:%02d:%02d(UTC)  Lat:%s%s Long:%s%s\n",
+          year, mon, day, hour, min, sec,
+          latitude, south_north, longitude, east_west )
 end
