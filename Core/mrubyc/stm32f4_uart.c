@@ -384,15 +384,13 @@ static void c_uart_setmode(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_uart_read(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   UART_HANDLE *hndl = *(UART_HANDLE **)(v[0].instance->data);
-  mrbc_int_t read_bytes;
 
-  if( v[1].tt == MRBC_TT_INTEGER ) {
-    read_bytes = mrbc_integer(v[1]);
-  } else {
+  if( v[1].tt != MRBC_TT_INTEGER ) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), 0);
     return;
   }
 
+  int read_bytes = mrbc_integer(v[1]);
   mrbc_value ret = mrbc_string_new(vm, 0, read_bytes);
   char *buf = mrbc_string_cstr(&ret);
   if( !buf ) {
@@ -418,13 +416,13 @@ static void c_uart_write(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   UART_HANDLE *hndl = *(UART_HANDLE **)(v[0].instance->data);
 
-  if( v[1].tt == MRBC_TT_STRING ) {
-    int n = uart_write( hndl, mrbc_string_cstr(&v[1]), mrbc_string_size(&v[1]) );
-    SET_INT_RETURN(n);
-  }
-  else {
+  if( v[1].tt != MRBC_TT_STRING ) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), 0);
+    return;
   }
+
+  int n = uart_write( hndl, mrbc_string_cstr(&v[1]), mrbc_string_size(&v[1]));
+  SET_INT_RETURN(n);
 }
 
 
@@ -472,23 +470,23 @@ static void c_uart_puts(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   UART_HANDLE *hndl = *(UART_HANDLE **)(v[0].instance->data);
 
-  if( v[1].tt == MRBC_TT_STRING ) {
-    const char *s = mrbc_string_cstr(&v[1]);
-    int len = mrbc_string_size(&v[1]);
-
-    uart_write( hndl, s, len );
-    if( len == 0 || s[len-1] != '\n' ) {
-#if defined(MRBC_CONVERT_CRLF)
-      uart_write( hndl, "\r\n", 2 );
-#else
-      uart_write( hndl, "\n", 1 );
-#endif
-    }
-    SET_NIL_RETURN();
-  }
-  else {
+  if( v[1].tt != MRBC_TT_STRING ) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), 0);
+    return;
   }
+
+  const char *s = mrbc_string_cstr(&v[1]);
+  int len = mrbc_string_size(&v[1]);
+
+  uart_write( hndl, s, len );
+  if( len == 0 || s[len-1] != '\n' ) {
+#if defined(MRBC_CONVERT_CRLF)
+    uart_write( hndl, "\r\n", 2 );
+#else
+    uart_write( hndl, "\n", 1 );
+#endif
+  }
+  SET_NIL_RETURN();
 }
 
 
@@ -568,6 +566,7 @@ static void c_uart_clear_tx_buffer(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_uart_clear_rx_buffer(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   UART_HANDLE *hndl = *(UART_HANDLE **)(v[0].instance->data);
+
   uart_clear_rx_buffer( hndl );
 }
 
@@ -575,7 +574,7 @@ static void c_uart_clear_rx_buffer(mrbc_vm *vm, mrbc_value v[], int argc)
 //================================================================
 /*! send break signal.
 
-  uart1.clear_rx_buffer()
+  uart1.break()
 */
 static void c_uart_send_break(mrbc_vm *vm, mrbc_value v[], int argc)
 {
