@@ -205,7 +205,7 @@ int uart_gets( UART_HANDLE *hndl, void *buffer, int size )
     *buf++ = hndl->rxfifo[hndl->rx_rd++];
     if( hndl->rx_rd >= hndl->rxfifo_size ) hndl->rx_rd = 0;
   }
-  buf[len] = 0;
+  *buf = '\0';
 
   return len;
 }
