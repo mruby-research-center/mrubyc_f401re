@@ -83,7 +83,7 @@ void uart_init(void)
   @param  baud		baud rate.
   @param  parity	0:none 1:odd 2:even
   @param  stop_bits	1 or 2
-  @note いずれも設定変更しないパラメータは、-1 を渡す。
+  @note  Pass -1 if you don't need change the parameter.
 */
 int uart_setmode( const UART_HANDLE *hndl, int baud, int parity, int stop_bits )
 {
