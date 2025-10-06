@@ -27,6 +27,26 @@ static GPIO_TypeDef * const TBL_PORT_TO_STM32GPIO[/* port */] = {
   0, GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, 0, 0, GPIOH,
 };
 
+static uint8_t const TBL_ARDUINO_DIGITAL_PIN_TO_PIN[/* num */] = {
+  0x03,  // D0 => PA3
+  0x02,  // D1 => PA2
+  0x0A,  // D2 => PA10
+  0x13,  // D3 => PB3
+  0x15,  // D4 => PB5
+  0x14,  // D5 => PB4
+  0x1A,  // D6 => PB10
+  0x08,  // D7 => PA8
+  0x09,  // D8 => PA9
+  0x27,  // D9 => PC7
+  0x16,  // D10 => PB6
+  0x07,  // D11 => PA7
+  0x06,  // D12 => PA6
+  0x05,  // D13 => PA5
+  0x19,  // D14 => PB9
+  0x18,  // D15 => PB8
+};
+
+
 
 //================================================================
 /*! PIN handle setter
@@ -37,15 +57,25 @@ static GPIO_TypeDef * const TBL_PORT_TO_STM32GPIO[/* port */] = {
 */
 int gpio_set_pin_handle( PIN_HANDLE *pin, const mrbc_value *val )
 {
-  if( val->tt != MRBC_TT_STRING ) goto ERROR_RETURN;
-  const char *s = mrbc_string_cstr(val);
-
-  // in case of "PA0"
-  if( s[0] == 'P' && ('A' <= s[1] && s[1] <= 'Z') ) {
-    pin->port = s[1] - 'A' + 1;
-    pin->num = mrbc_atoi( s+2, 10 );
-    if( pin->num > 15 ) goto ERROR_RETURN;
-    return 0;
+  if( val->tt == MRBC_TT_STRING ){
+    const char *s = mrbc_string_cstr(val);
+    // in case of "PA0"
+    if( s[0] == 'P' && ('A' <= s[1] && s[1] <= 'Z') ) {
+      pin->port = s[1] - 'A' + 1;
+      pin->num = mrbc_atoi( s+2, 10 );
+      if( pin->num > 15 ) goto ERROR_RETURN;
+      return 0;
+    }
+  } else if( val->tt == MRBC_TT_INTEGER ) {
+    int n = mrbc_integer(*val);
+    // in case of Arduino pin number.
+    if( n >= 0 && n <= 15 ) {
+      n = TBL_ARDUINO_DIGITAL_PIN_TO_PIN[n];
+      pin->port = ((n >> 4) & 0x03) + 1;
+      pin->num = (n & 0x0F);
+      return 0;
+    }
+    // goto ERROR_RETURN;
   }
 
  ERROR_RETURN:
@@ -130,7 +160,8 @@ int gpio_setmode_pwm( const PIN_HANDLE *pin, int unit_num )
 //================================================================
 /*! constructor
 
-  gpio1 = GPIO.new("PA0", GPIO::OUT )
+  gpio1 = GPIO.new("PA0", GPIO::OUT ) # specific pin. 
+  gpio1 = GPIO.new(0, GPIO::OUT )	    # Arduino pin.
 */
 static void c_gpio_new(mrbc_vm *vm, mrbc_value v[], int argc)
 {

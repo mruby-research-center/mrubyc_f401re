@@ -20,6 +20,7 @@
 
 static void c_led_write(mrbc_vm *vm, mrbc_value v[], int argc);
 static void c_sw_read(mrbc_vm *vm, mrbc_value v[], int argc);
+static void c_tick(mrbc_vm *vm, mrbc_value v[], int argc);
 
 /* mruby/c プログラムが使うワークメモリの確保 */
 #define MRBC_MEMORY_SIZE (1024*30)
@@ -88,6 +89,9 @@ void start_mrubyc( void )
   mrbc_define_method(0, 0, "led_write", c_led_write);
   mrbc_define_method(0, 0, "sw_read", c_sw_read);
 
+  // tickメソッド
+  mrbc_define_method(0, 0, "tick", c_tick);
+
   // タスクの登録
 #if 1
   void *task = 0;
@@ -115,6 +119,8 @@ void start_mrubyc( void )
 }
 
 
+
+
 /*! オンボードLED ON/OFF メソッドの実装
 */
 static void c_led_write(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -135,6 +141,13 @@ static void c_sw_read(mrbc_vm *vm, mrbc_value v[], int argc)
     SET_INT_RETURN( 1 );
     break;
   }
+}
+
+// tickメソッドの実装
+static void c_tick(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  uint32_t now = HAL_GetTick();
+  SET_INT_RETURN( now );
 }
 
 
